@@ -1,0 +1,9 @@
+# ./monitor.sh /path/to/thing/to/monitor handler-script
+
+[ -z $2 ] && handler="echo" || handler="$2"
+
+inotifywait -m -q -e modify "$1" |
+while read -r abspath what relpath
+do
+    $handler $abspath $relpath
+done

@@ -1,0 +1,23 @@
+abspath=$1
+relpath=$2
+locpath="$abspath/$relpath"
+[ -z $5 ] && rempath="$locpath" || rempath=$5
+fext=$(echo $relpath | awk -F . '{if (NF>1) {print $NF}}')
+
+remote=$3
+[ -z $4 ] && sshArg="ssh" || sshArg=$4
+
+# Track changes not to lose stuff
+git add .
+git commit -am "AUTOCOMMIT: Don't forget to squash"
+
+# Perform heuristics for smooth synchronization
+if [ $fext == "org" ] ; then
+   # Remove dangling clocks from Org files
+    sed "s/\(.*\)CLOCK:\(.*\]\)$/\1IN PROGRESS:\2/" "$locpath" > ".$locpath.sending"
+else
+    cp "$locpath" ".$locpath.sending"
+fi
+
+# Send and clean up the traces
+rsync -Pave "$sshArg" ".$locpath.sending" $rempath

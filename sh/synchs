@@ -1,0 +1,10 @@
+# ./monitor.sh /path/to/thing/to/monitor handler-script remote [sshArgs rempath]
+
+toWatch=$1; shift
+[ -z $1 ] && handler="echo" || handler="$1"; shift
+
+inotifywait -m -q -e modify "$toWatch" |
+while read -r abspath what relpath
+do
+    $handler $abspath $relpath $@
+done
