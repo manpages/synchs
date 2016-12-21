@@ -6,5 +6,15 @@ toWatch=$1; shift
 inotifywait -m -q -e modify "$toWatch" |
 while read -r abspath what relpath
 do
+  echo "* * *"
+  echo "Detected $what in $abspath. File: $relpath"
+  cd $abspath
+  if [ -z "$(git status $relpath | grep modified)" ]; then
+    cd -
+    echo ":( $relpath wasn't modified, skipping"
+  else
+    cd -
+    echo "$relpath was modified, proceeding"
     $handler $abspath $relpath $@
+  fi
 done
