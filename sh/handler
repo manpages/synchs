@@ -1,5 +1,5 @@
-abspath=$1
-relpath=$2
+abspath="$1"
+relpath="$2"
 locpath="$abspath/$relpath"
 wippath="/tmp/$(sha1sum $locpath | cut -d\  -f1)"
 echo "* * * * * *"
@@ -9,11 +9,11 @@ if [ -f $wippath ] ; then
   exit
 fi
 echo "* * * * * *"
-[ -z $5 ] && rempath="$locpath" || rempath=$5
+[ -z "$5" ] && rempath="$locpath" || rempath="$5"
 fext=$(echo $relpath | awk -F . '{if (NF>1) {print $NF}}')
 
-remote=$3
-[ -z $4 ] && sshArg="ssh" || sshArg=$4
+remote="$3"
+[ -z "$4" ] && sshPort="22" || sshPort="$4"
 
 # Track changes not to lose stuff
 cd $abspath
@@ -32,6 +32,6 @@ fi
 
 # Send and clean up the traces
 echo "*  *  *  *"
-echo "Sending $wippath to $remote, to be placed under $rempath with ssh arguments “$sshArg”"
-rsync -Pave "$sshArg" "$wippath" "$remote":"\"$rempath\""
+echo "Sending $wippath to $remote, to be placed under $rempath with ssh port “$sshPort”"
+rsync -Pave "ssh -p $sshPort" "$wippath" "$remote":"\"$rempath\""
 setsid sh -c "sleep 5; rm \"$wippath\""

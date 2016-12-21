@@ -1,4 +1,4 @@
-# ./monitor.sh /path/to/thing/to/monitor handler-script remote [sshArgs rempath]
+# ./monitor.sh /path/to/thing/to/monitor handler-script remote [sshPort rempath]
 
 toWatch=$1; shift
 [ -z $1 ] && handler="echo" || handler="$1"; shift
