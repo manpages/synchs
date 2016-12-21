@@ -1,6 +1,7 @@
 abspath=$1
 relpath=$2
 locpath="$abspath/$relpath"
+wippath="$abspath/$(dirname $relpath)/.$(basename $relpath).sending"
 [ -z $5 ] && rempath="$locpath" || rempath=$5
 fext=$(echo $relpath | awk -F . '{if (NF>1) {print $NF}}')
 
@@ -14,10 +15,11 @@ git commit -am "AUTOCOMMIT: Don't forget to squash"
 # Perform heuristics for smooth synchronization
 if [ $fext == "org" ] ; then
    # Remove dangling clocks from Org files
-    sed "s/\(.*\)CLOCK:\(.*\]\)$/\1IN PROGRESS:\2/" "$locpath" > ".$locpath.sending"
+    sed "s/\(.*\)CLOCK:\(.*\]\)$/\1IN PROGRESS:\2/" "$locpath" > "$wippath"
 else
     cp "$locpath" ".$locpath.sending"
 fi
 
 # Send and clean up the traces
-rsync -Pave "$sshArg" ".$locpath.sending" $rempath
+rsync -Pave "$sshArg" "$wippath" "$remote":"\"$rempath\""
+rm "$wippath"
